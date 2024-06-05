@@ -1,0 +1,110 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header form {
+    display: flex;
+    align-items: center;
+}
+
+.header form input {
+    padding: 5px;
+    font-size: 16px;
+}
+
+.header form button {
+    padding: 5px 10px;
+    font-size: 16px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.container {
+    padding: 20px;
+}
+
+.expanded-query {
+    white-space: pre-wrap;
+    font-family: monospace;
+    background-color: #f8f8f8;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.results-info {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.results-range {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    cursor: pointer;
+    background-color: #f1f1f1;
+}
+
+th i {
+    margin-left: 5px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    color: #333;
+    cursor: pointer;
+}
+
+.pagination a.active {
+    background-color: #4CAF50;
+    color: white;
+    border: 1px solid #4CAF50;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
+}

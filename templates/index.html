@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Search Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Netflix Search Engine</h1>
+        <form id="searchForm">
+            <input type="text" id="query" name="query" placeholder="Enter movie/TV show title" value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="container">
+        <pre id="expandedQuery" class="expanded-query"></pre>
+        <div id="resultsInfo" class="results-info"></div>
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>#</th> <!-- Add this column for row numbers -->
+                    <th onclick="sortTable(1)">Title <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(2)">Type <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(3)">Release Year <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(4)">Duration <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(5)">Similarity Score <i class="fas fa-sort"></i></th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Results will be injected here by JavaScript -->
+            </tbody>
+        </table>
+        <div id="pagination" class="pagination">
+            <!-- Pagination controls will be injected here by JavaScript -->
+        </div>
+        <div id="resultsRange" class="results-range"></div> <!-- Add this div for results range -->
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let query = document.getElementById('query').value;
+            search(query, 1);
+        });
+
+        function search(query, page) {
+            fetch(`/search?query=${query}&page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('expandedQuery').innerText = `Expanded Query:\n${data.expanded_query}`;
+                    
+                    // Display query info and results info
+                    document.getElementById('resultsInfo').innerText = `Query = ${query}`;
+                    document.getElementById('resultsRange').innerText = `Showing results ${data.start} to ${data.end} of ${data.total_results}`;
+
+                    let resultsTable = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+                    resultsTable.innerHTML = '';
+                    data.results.forEach((item, index) => {
+                        let row = resultsTable.insertRow();
+                        row.insertCell(0).innerText = index + 1 + ((data.current_page - 1) * 10); // Adjust this to reflect the current page
+                        row.insertCell(1).innerText = item.title;
+                        row.insertCell(2).innerText = item.type;
+                        row.insertCell(3).innerText = item.release_year;
+                        row.insertCell(4).innerText = item.duration;
+                        row.insertCell(5).innerText = item.similarity.toFixed(2);
+                        let detailCell = row.insertCell(6);
+                        let detailButton = document.createElement('button');
+                        detailButton.innerText = 'Detail';
+                        detailButton.onclick = function() {
+                            window.location.href = `/detail?title=${encodeURIComponent(item.title)}`;
+                        };
+                        detailCell.appendChild(detailButton);
+                    });
+
+                    let pagination = document.getElementById('pagination');
+                    pagination.innerHTML = '';
+                    for (let i = 1; i <= data.total_pages; i++) {
+                        let pageLink = document.createElement('a');
+                        pageLink.href = "#";
+                        pageLink.innerText = i;
+                        if (i === data.current_page) {
+                            pageLink.classList.add('active');
+                        }
+                        pageLink.onclick = function(event) {
+                            event.preventDefault();
+                            search(query, i);
+                        };
+                        pagination.appendChild(pageLink);
+                    }
+                });
+        }
+
+        function sortTable(n) {
+            let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("resultsTable");
+            switching = true;
+            dir = "asc"; 
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
